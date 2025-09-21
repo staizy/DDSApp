@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Новая транзакция{% endblock %}
+
+{% block content %}
+<div class="card p-4">
+  <h2>Добавить транзакцию</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="mb-3">
+      {{ form.created_at.label_tag }}
+      {{ form.created_at }}
+      {{ form.created_at.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.status.label_tag }}
+      {{ form.status }}
+      {{ form.status.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.transaction_type.label_tag }}
+      {{ form.transaction_type }}
+      {{ form.transaction_type.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.category.label_tag }}
+      {{ form.category }}
+      {{ form.category.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.subcategory.label_tag }}
+      {{ form.subcategory }}
+      {{ form.subcategory.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.amount.label_tag }}
+      {{ form.amount }}
+      {{ form.amount.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.comment.label_tag }}
+      {{ form.comment }}
+      {{ form.comment.errors }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+  </form>
+</div>
+{% endblock %}

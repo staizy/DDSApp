@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Движение денежных средств{% endblock %}
+
+{% block content %}
+<h1>Движение денежных средств</h1>
+
+<form method="get" id="filters" class="mb-3 row align-items-center g-1">
+  <div class="col-auto">
+    <div class="input-group">
+      <span class="input-group-text">От:</span>
+      <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-control">
+    </div>
+  </div>
+  <div class="col-auto">
+    <div class="input-group">
+      <span class="input-group-text">До:</span>
+      <input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-control">
+    </div>
+  </div>
+  <div class="col-auto">
+    <select name="status" class="form-select">
+      <option value="">Статус (все)</option>
+      {% for s in statuses %}
+        <option value="{{ s.id }}" {% if request.GET.status == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-auto">
+    <select name="transaction_type" id="transaction_type" class="form-select">
+      <option value="">Тип (все)</option>
+      {% for t in transaction_types %}
+        <option value="{{ t.id }}" {% if request.GET.transaction_type == t.id|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-auto">
+    <select name="category" id="category" class="form-select">
+      <option value="">Категория (все)</option>
+      {% for c in categories %}
+        <option value="{{ c.id }}" data-type="{{ c.transaction_type_id }}" {% if request.GET.category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-auto">
+    <select name="subcategory" id="subcategory" class="form-select">
+      <option value="">Подкатегория (все)</option>
+      {% for sc in subcategories %}
+        <option value="{{ sc.id }}" data-category="{{ sc.category_id }}" {% if request.GET.subcategory == sc.id|stringformat:"s" %}selected{% endif %}>{{ sc.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-auto"><button class="btn btn-primary" type="submit">Применить</button></div>
+  <div class="col-auto"><a class="btn btn-secondary" href="{% url 'core:transaction_create' %}"">Создать запись</a></div>
+</form>
+
+<table class="table mt-3">
+  <thead><tr>
+    <th>Дата</th><th>Статус</th><th>Тип</th><th>Категория</th><th>Подкатегория</th><th>Сумма</th><th>Комментарий</th><th>Действия</th>
+  </tr></thead>
+  <tbody>
+  {% for tx in object_list %}
+    <tr>
+      <td>{{ tx.created_at }}</td>
+      <td>{{ tx.status.name }}</td>
+      <td>{{ tx.transaction_type.name }}</td>
+      <td>{{ tx.category.name }}</td>
+      <td>{{ tx.subcategory.name }}</td>
+      <td>{{ tx.amount }}₽</td>
+      <td><span class="desc" title="{{tx.comment}}">{{ tx.comment|default:"—"}}</span></td>
+      <td>
+        <a href="{% url 'core:transaction_edit' tx.id %}" class="btn btn-sm btn-secondary">Редактировать</a>
+      </td>
+      <td>
+        <a href="{% url 'core:transaction_delete' tx.id %}" class="btn btn-sm btn-secondary">Удалить</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="8">Записей не найдено</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<script>
+  (function(){
+    const transactionTypeSel = document.getElementById('transaction_type');
+    const categorySel = document.getElementById('category');
+    const subcategorySel = document.getElementById('subcategory');
+
+    function filterCategories(){
+      const typeVal = txnTypeSel.value;
+      for (let opt of categorySel.options){
+        const allowed = !typeVal || opt.dataset.type === typeVal;
+        opt.style.display = allowed ? '' : 'none';
+      }
+      filterSubcategories();
+    }
+
+    function filterSubcategories(){
+      const catVal = categorySel.value;
+      for (let opt of subcategorySel.options){
+        const allowed = !catVal || opt.dataset.category === catVal;
+        opt.style.display = allowed ? '' : 'none';
+      }
+    }
+
+    transactionTypeSel?.addEventListener('change', filterCategories);
+    categorySel?.addEventListener('change', filterSubcategories);
+    filterCategories();
+    filterSubcategories();
+  })();
+</script>
+
+<style>
+  .desc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    white-space: normal;
+    width: 40vh;
+  }
+</style>
+
+{% endblock %}
