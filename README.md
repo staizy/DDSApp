@@ -6,7 +6,7 @@
 git clone https://github.com/staizy/DDSApp.git
 cd DDSApp
 ```
- bebebe
+ bebebeeee
 ## 2. Создание и активация виртуального окружения
 
 **Windows:**
